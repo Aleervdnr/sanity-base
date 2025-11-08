@@ -51,3 +51,43 @@ export const POST_QUERY =
     ...@->{_id, title, slug} // get fields from the referenced post
   }
 }`);
+
+export const PAGES_QUERY =
+  defineQuery(`*[_type == "page" && defined(slug.current)]|order(publishedAt desc){
+  _id,
+  title,
+  slug,
+  description,
+  sections,
+  publishedAt
+}`);
+
+export const PAGES_SLUGS_QUERY =
+  defineQuery(`*[_type == "page" && defined(slug.current)]{ 
+  "slug": slug.current
+}`);
+
+export const PAGE_QUERY =
+  defineQuery(`*[_type == "page" && slug.current == $slug][0]{
+  _id,
+  title,
+  description,
+  sections[]{
+    _type,
+    _key,
+    title,
+    subtitle,
+    content,
+    alignment,
+    backgroundColor,
+    image{
+      asset->{
+        _id,
+        url
+      },
+      alt
+    },
+    imagePosition
+  },
+  publishedAt
+}`);

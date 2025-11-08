@@ -13,6 +13,114 @@
  */
 
 // Source: schema.json
+export type Page = {
+  _id: string;
+  _type: "page";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  slug: Slug;
+  description?: string;
+  sections: Array<{
+    _key: string;
+  } & TextSection | {
+    _key: string;
+  } & ImageTextSection>;
+  publishedAt?: string;
+};
+
+export type ImageTextSection = {
+  _type: "imageTextSection";
+  title: string;
+  subtitle?: string;
+  content: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
+  image: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt: string;
+    _type: "image";
+  };
+  imagePosition?: "left" | "right";
+  backgroundColor?: "white" | "gray" | "black";
+};
+
+export type TextSection = {
+  _type: "textSection";
+  title: string;
+  subtitle?: string;
+  content: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
+  alignment?: "left" | "center" | "right";
+  backgroundColor?: "white" | "gray" | "black";
+};
+
 export type Post = {
   _id: string;
   _type: "post";
@@ -289,7 +397,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = Post | Author | Category | BlockContent | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = Page | ImageTextSection | TextSection | Post | Author | Category | BlockContent | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/sanity/lib/queries.ts
 // Variable: POSTS_QUERY
@@ -370,7 +478,7 @@ export type POSTS_SLUGS_QUERYResult = Array<{
   slug: string | null;
 }>;
 // Variable: POST_QUERY
-// Query: *[_type == "post" && slug.current == $slug][0]{  _id,  title,  body,  mainImage,  publishedAt,  "categories": coalesce(    categories[]->{      _id,      slug,      title    },    []  ),  author->{    name,    image  },  relatedPosts[]{    _key,    "title": @->title,    "slug": @->slug,    "_id": @->_id,    "mainImage": @->mainImage  }}
+// Query: *[_type == "post" && slug.current == $slug][0]{  _id,  title,  body,  mainImage,  publishedAt,  "categories": coalesce(    categories[]->{      _id,      slug,      title    },    []  ),  author->{    name,    image  },  relatedPosts[]{    _key, // required for drag and drop    ...@->{_id, title, slug} // get fields from the referenced post  }}
 export type POST_QUERYResult = {
   _id: string;
   title: string | null;
@@ -441,10 +549,59 @@ export type POST_QUERYResult = {
   } | null;
   relatedPosts: Array<{
     _key: string;
+    _id: string;
     title: string | null;
     slug: Slug | null;
-    _id: string;
-    mainImage: {
+  }> | null;
+} | null;
+// Variable: PAGES_QUERY
+// Query: *[_type == "page" && defined(slug.current)]|order(publishedAt desc){  _id,  title,  slug,  description,  sections,  publishedAt}
+export type PAGES_QUERYResult = Array<{
+  _id: string;
+  title: string;
+  slug: Slug;
+  description: string | null;
+  sections: Array<{
+    _key: string;
+  } & ImageTextSection | {
+    _key: string;
+  } & TextSection>;
+  publishedAt: string | null;
+}>;
+// Variable: PAGES_SLUGS_QUERY
+// Query: *[_type == "page" && defined(slug.current)]{   "slug": slug.current}
+export type PAGES_SLUGS_QUERYResult = Array<{
+  slug: string;
+}>;
+// Variable: PAGE_QUERY
+// Query: *[_type == "page" && slug.current == $slug][0]{  _id,  title,  description,  sections[]{    _type,    _key,    title,    subtitle,    content,    alignment,    backgroundColor,    image{      asset->{        _id,        url      },      alt    },    imagePosition  },  publishedAt}
+export type PAGE_QUERYResult = {
+  _id: string;
+  title: string;
+  description: string | null;
+  sections: Array<{
+    _type: "imageTextSection";
+    _key: string;
+    title: string;
+    subtitle: string | null;
+    content: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "normal";
+      listItem?: "bullet";
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    } | {
       asset?: {
         _ref: string;
         _type: "reference";
@@ -456,8 +613,60 @@ export type POST_QUERYResult = {
       crop?: SanityImageCrop;
       alt?: string;
       _type: "image";
-    } | null;
-  }> | null;
+      _key: string;
+    }>;
+    alignment: null;
+    backgroundColor: "black" | "gray" | "white" | null;
+    image: {
+      asset: {
+        _id: string;
+        url: string | null;
+      } | null;
+      alt: string;
+    };
+    imagePosition: "left" | "right" | null;
+  } | {
+    _type: "textSection";
+    _key: string;
+    title: string;
+    subtitle: string | null;
+    content: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "normal";
+      listItem?: "bullet";
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    } | {
+      asset?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+      };
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: string;
+      _type: "image";
+      _key: string;
+    }>;
+    alignment: "center" | "left" | "right" | null;
+    backgroundColor: "black" | "gray" | "white" | null;
+    image: null;
+    imagePosition: null;
+  }>;
+  publishedAt: string | null;
 } | null;
 
 // Query TypeMap
@@ -466,6 +675,9 @@ declare module "@sanity/client" {
   interface SanityQueries {
     "*[_type == \"post\" && defined(slug.current)]|order(publishedAt desc)[0...12]{\n  _id,\n  title,\n  slug,\n  body,\n  mainImage,\n  publishedAt,\n  \"categories\": coalesce(\n    categories[]->{\n      _id,\n      slug,\n      title\n    },\n    []\n  ),\n  author->{\n    name,\n    image\n  }\n}": POSTS_QUERYResult;
     "*[_type == \"post\" && defined(slug.current)]{ \n  \"slug\": slug.current\n}": POSTS_SLUGS_QUERYResult;
-    "*[_type == \"post\" && slug.current == $slug][0]{\n  _id,\n  title,\n  body,\n  mainImage,\n  publishedAt,\n  \"categories\": coalesce(\n    categories[]->{\n      _id,\n      slug,\n      title\n    },\n    []\n  ),\n  author->{\n    name,\n    image\n  },\n  relatedPosts[]{\n    _key,\n    \"title\": @->title,\n    \"slug\": @->slug,\n    \"_id\": @->_id,\n    \"mainImage\": @->mainImage\n  }\n}": POST_QUERYResult;
+    "*[_type == \"post\" && slug.current == $slug][0]{\n  _id,\n  title,\n  body,\n  mainImage,\n  publishedAt,\n  \"categories\": coalesce(\n    categories[]->{\n      _id,\n      slug,\n      title\n    },\n    []\n  ),\n  author->{\n    name,\n    image\n  },\n  relatedPosts[]{\n    _key, // required for drag and drop\n    ...@->{_id, title, slug} // get fields from the referenced post\n  }\n}": POST_QUERYResult;
+    "*[_type == \"page\" && defined(slug.current)]|order(publishedAt desc){\n  _id,\n  title,\n  slug,\n  description,\n  sections,\n  publishedAt\n}": PAGES_QUERYResult;
+    "*[_type == \"page\" && defined(slug.current)]{ \n  \"slug\": slug.current\n}": PAGES_SLUGS_QUERYResult;
+    "*[_type == \"page\" && slug.current == $slug][0]{\n  _id,\n  title,\n  description,\n  sections[]{\n    _type,\n    _key,\n    title,\n    subtitle,\n    content,\n    alignment,\n    backgroundColor,\n    image{\n      asset->{\n        _id,\n        url\n      },\n      alt\n    },\n    imagePosition\n  },\n  publishedAt\n}": PAGE_QUERYResult;
   }
 }
