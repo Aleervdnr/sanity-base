@@ -1,5 +1,5 @@
 import { defineType, defineArrayMember } from "sanity";
- 
+
 export const pageBuilderType = defineType({
   name: "pageBuilder",
   type: "array",
@@ -9,4 +9,14 @@ export const pageBuilderType = defineType({
     defineArrayMember({ type: "features" }),
     defineArrayMember({ type: "faqs" }),
   ],
+  options: {
+    insertMenu: {
+      views: [
+        {
+          name: "grid",
+          previewImageUrl: (schemaType) => `/block-previews/${schemaType}.png`,
+        },
+      ],
+    },
+  },
 });
