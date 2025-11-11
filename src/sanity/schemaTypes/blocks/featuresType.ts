@@ -1,3 +1,4 @@
+import { StarIcon } from "@sanity/icons";
 import { defineField, defineType } from "sanity";
 
 export const featuresType = defineType({
@@ -29,4 +30,16 @@ export const featuresType = defineType({
       ],
     }),
   ],
+  icon: StarIcon,
+  preview: {
+    select: {
+      title: "title",
+    },
+    prepare({ title }) {
+      return {
+        title,
+        subtitle: "Features",
+      };
+    },
+  },
 });
