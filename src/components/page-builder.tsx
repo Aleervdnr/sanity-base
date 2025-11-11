@@ -1,92 +1,101 @@
-import { createDataAttribute } from '@sanity/visual-editing'
-import TextSection from './text-section'
-import ImageTextSection from './image-text-section'
+"use client";
 
-type Section = {
-  _key: string
-  _type: string
-  title: string
-  subtitle?: string | null
-  content: BlockContent
-  alignment?: 'left' | 'center' | 'right' | null
-  backgroundColor?: 'white' | 'gray' | 'black' | null
-  image?: {
-    asset: {
-      _id: string
-      url: string | null
-    } | null
-    alt: string
-  } | null
-  imagePosition?: 'left' | 'right' | null
-}
+import { Hero } from "@/components/blocks/hero";
+import { Features } from "@/components/blocks/features";
+import { SplitImage } from "@/components/blocks/split-image";
+import { FAQs } from "@/components/blocks/faqs";
+import { PAGE_QUERYResult } from "@/sanity/types";
+import { client } from "@/sanity/lib/client";
+import { Any, createDataAttribute } from "next-sanity";
+import { useOptimistic } from "next-sanity/hooks";
 
-type BlockContent = Array<{
-  _key: string
-  _type: string
-  children?: Array<{
-    _key: string
-    _type: string
-    marks?: string[]
-    text?: string
-  }>
-  style?: string
-  listItem?: string
-  markDefs?: Array<unknown>
-  level?: number
-}>
+type PageBuilderProps = {
+  content: NonNullable<PAGE_QUERYResult>["content"];
+  documentId: string;
+  documentType: string;
+};
 
-interface PageBuilderProps {
-  sections: Section[]
-  pageId?: string
-}
+const { projectId, dataset, stega } = client.config();
+export const createDataAttributeConfig = {
+  projectId,
+  dataset,
+  baseUrl: typeof stega.studioUrl === "string" ? stega.studioUrl : "",
+};
 
-export default function PageBuilder({ sections, pageId }: PageBuilderProps) {
-  if (!sections || sections.length === 0) {
-    return null
+export function PageBuilder({
+  content,
+  documentId,
+  documentType,
+}: PageBuilderProps) {
+  const blocks = useOptimistic<
+    NonNullable<PAGE_QUERYResult>["content"] | undefined,
+    NonNullable<PAGE_QUERYResult>
+  >(content, (state, action) => {
+    if (action.id === documentId) {
+      return action?.document?.content?.map(
+        (block) => state?.find((s) => s._key === block?._key) || block
+      );
+    }
+    return state;
+  });
+
+  if (!Array.isArray(blocks)) {
+    return null;
   }
 
   return (
-    <div className="page-builder">
-      {sections.map((section, index) => {
-        const dataAttribute = pageId
-          ? createDataAttribute({
-              id: pageId,
-              type: 'page',
-              path: `sections[${index}]`,
-            }).toString()
-          : undefined
+    <main
+      data-sanity={createDataAttribute({
+        ...createDataAttributeConfig,
+        id: documentId,
+        type: documentType,
+        path: "content",
+      }).toString()}
+    >
+      {blocks.map((block:Any) => {
+        const DragHandle = ({ children }: { children: React.ReactNode }) => (
+          <div
+            data-sanity={createDataAttribute({
+              ...createDataAttributeConfig,
+              id: documentId,
+              type: documentType,
+              path: `content[_key=="${block._key}"]`,
+            }).toString()}
+          >
+            {children}
+          </div>
+        );
 
-        switch (section._type) {
-          case 'textSection':
+        switch (block._type) {
+          case "hero":
             return (
-              <div key={section._key} data-sanity={dataAttribute}>
-                <TextSection
-                  title={section.title}
-                  subtitle={section.subtitle ?? undefined}
-                  content={section.content}
-                  alignment={section.alignment ?? undefined}
-                  backgroundColor={section.backgroundColor ?? undefined}
-                />
-              </div>
-            )
-          case 'imageTextSection':
-            if (!section.image) return null
+              <DragHandle key={block._key}>
+                <Hero {...block} />
+              </DragHandle>
+            );
+          case "features":
             return (
-              <div key={section._key} data-sanity={dataAttribute}>
-                <ImageTextSection
-                  title={section.title}
-                  subtitle={section.subtitle ?? undefined}
-                  content={section.content}
-                  image={section.image}
-                  imagePosition={section.imagePosition ?? undefined}
-                  backgroundColor={section.backgroundColor ?? undefined}
-                />
-              </div>
-            )
+              <DragHandle key={block._key}>
+                <Features {...block} />
+              </DragHandle>
+            );
+          case "splitImage":
+            return (
+              <DragHandle key={block._key}>
+                <SplitImage {...block} />
+              </DragHandle>
+            );
+          case "faqs":
+            return (
+              <DragHandle key={block._key}>
+                <FAQs {...block} />
+              </DragHandle>
+            );
           default:
-            return null
+            // This is a fallback for when we don't have a block type
+            return <div key={block._key}>Block not found: {block._type}</div>;
         }
       })}
-    </div>
-  )
+    </main>
+  );
 }
