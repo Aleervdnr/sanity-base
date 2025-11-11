@@ -1,3 +1,4 @@
+import { PageBuilder } from "@/components/page-builder";
 import { sanityFetch } from "@/sanity/lib/live";
 import { PAGE_QUERY } from "@/sanity/lib/queries";
 
@@ -11,5 +12,5 @@ export default async function Page({
     params: await params,
   });
 
-  return <div>{JSON.stringify(page)}</div>;
+  return page?.content ? <PageBuilder content={page.content} /> : null;
 }

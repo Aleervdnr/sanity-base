@@ -1,92 +1,36 @@
-import { createDataAttribute } from '@sanity/visual-editing'
-import TextSection from './text-section'
-import ImageTextSection from './image-text-section'
+import { Hero } from "@/components/blocks/hero";
+import { Features } from "@/components/blocks/features";
+import { SplitImage } from "@/components/blocks/split-image";
+import { FAQs } from "@/components/blocks/faqs";
+import { PAGE_QUERYResult } from "@/sanity/types";
+import { Any } from "next-sanity";
 
-type Section = {
-  _key: string
-  _type: string
-  title: string
-  subtitle?: string | null
-  content: BlockContent
-  alignment?: 'left' | 'center' | 'right' | null
-  backgroundColor?: 'white' | 'gray' | 'black' | null
-  image?: {
-    asset: {
-      _id: string
-      url: string | null
-    } | null
-    alt: string
-  } | null
-  imagePosition?: 'left' | 'right' | null
-}
+type PageBuilderProps = {
+  content: NonNullable<PAGE_QUERYResult>["content"];
+};
 
-type BlockContent = Array<{
-  _key: string
-  _type: string
-  children?: Array<{
-    _key: string
-    _type: string
-    marks?: string[]
-    text?: string
-  }>
-  style?: string
-  listItem?: string
-  markDefs?: Array<unknown>
-  level?: number
-}>
-
-interface PageBuilderProps {
-  sections: Section[]
-  pageId?: string
-}
-
-export default function PageBuilder({ sections, pageId }: PageBuilderProps) {
-  if (!sections || sections.length === 0) {
-    return null
+export function PageBuilder({ content }: PageBuilderProps) {
+  if (!Array.isArray(content)) {
+    return null;
   }
 
   return (
-    <div className="page-builder">
-      {sections.map((section, index) => {
-        const dataAttribute = pageId
-          ? createDataAttribute({
-              id: pageId,
-              type: 'page',
-              path: `sections[${index}]`,
-            }).toString()
-          : undefined
-
-        switch (section._type) {
-          case 'textSection':
-            return (
-              <div key={section._key} data-sanity={dataAttribute}>
-                <TextSection
-                  title={section.title}
-                  subtitle={section.subtitle ?? undefined}
-                  content={section.content}
-                  alignment={section.alignment ?? undefined}
-                  backgroundColor={section.backgroundColor ?? undefined}
-                />
-              </div>
-            )
-          case 'imageTextSection':
-            if (!section.image) return null
-            return (
-              <div key={section._key} data-sanity={dataAttribute}>
-                <ImageTextSection
-                  title={section.title}
-                  subtitle={section.subtitle ?? undefined}
-                  content={section.content}
-                  image={section.image}
-                  imagePosition={section.imagePosition ?? undefined}
-                  backgroundColor={section.backgroundColor ?? undefined}
-                />
-              </div>
-            )
+    <main>
+      {content.map((block:Any) => {
+        switch (block._type) {
+          case "hero":
+            return <Hero key={block._key} {...block} />;
+          case "features":
+            return <Features key={block._key} {...block} />;
+          case "splitImage":
+            return <SplitImage key={block._key} {...block} />;
+          case "faqs":
+            return <FAQs key={block._key} {...block} />;
           default:
-            return null
+            // This is a fallback for when we don't have a block type
+            return <div key={block._key}>Block not found: {block._type}</div>;
         }
       })}
-    </div>
-  )
+    </main>
+  );
 }
