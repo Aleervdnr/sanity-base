@@ -17,6 +17,20 @@ export const heroType = defineType({
       name: "image",
       type: "image",
     }),
+    defineField({
+      name: "alignment",
+      title: "Text Alignment",
+      type: "string",
+      options: {
+        list: [
+          { title: "Left", value: "left" },
+          { title: "Center", value: "center" },
+          { title: "Right", value: "right" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "center",
+    }),
   ],
     icon: TextIcon,
   preview: {

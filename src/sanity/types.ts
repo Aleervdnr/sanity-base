@@ -121,6 +121,7 @@ export type Hero = {
     crop?: SanityImageCrop;
     _type: "image";
   };
+  alignment?: "left" | "center" | "right";
 };
 
 export type Features = {
@@ -876,6 +877,7 @@ export type PAGE_QUERYResult = {
       crop?: SanityImageCrop;
       _type: "image";
     };
+    alignment?: "center" | "left" | "right";
   } | {
     _key: string;
     _type: "splitImage";
@@ -1020,6 +1022,7 @@ export type HOME_PAGE_QUERYResult = {
         crop?: SanityImageCrop;
         _type: "image";
       };
+      alignment?: "center" | "left" | "right";
     } | {
       _key: string;
       _type: "splitImage";
