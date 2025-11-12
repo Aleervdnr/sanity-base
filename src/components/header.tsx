@@ -15,7 +15,7 @@ export async function Header() {
   const logoMaxWidth = headerData?.logoMaxWidth || 200;
 
   return (
-    <header className="fixed z-50 w-full bg-white/80 shadow-md flex items-center justify-between px-16 py-2 rounded-lg container mx-auto shadow-pink-50">
+    <header className="fixed z-50 w-full flex items-center justify-between px-16 py-2 rounded-lg mx-auto">
       <Link
         className="md:text-xl font-bold tracking-tight flex items-center gap-2"
         href="/"
