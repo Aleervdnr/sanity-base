@@ -1,34 +1,69 @@
-import Link from 'next/link'
+import Link from "next/link";
+import Image from "next/image";
+import { urlFor } from "@/sanity/lib/image";
+import { client } from "@/sanity/lib/client";
+import { HEADER_QUERY } from "@/sanity/lib/queries";
+import { HEADER_QUERYResult } from "@/sanity/types";
 
-export function Header() {
+export async function Header() {
+  const headerData: HEADER_QUERYResult | null = await client.fetch(
+    HEADER_QUERY
+  );
+
+  // Valores por defecto si no hay configuración
+  const logoHeight = headerData?.logoHeight || 70;
+  const logoMaxWidth = headerData?.logoMaxWidth || 200;
+
   return (
-    <div className="from-pink-50 to-white bg-gradient-to-b p-6">
-      <header className="bg-white/80 shadow-md flex items-center justify-between p-6 rounded-lg container mx-auto shadow-pink-50">
-        <Link
-          className="text-pink-700 md:text-xl font-bold tracking-tight"
-          href="/"
-        >
-          Layer Caker
-        </Link>
+    <header className="fixed z-50 w-full bg-white/80 shadow-md flex items-center justify-between px-16 py-2 rounded-lg container mx-auto shadow-pink-50">
+      <Link
+        className="md:text-xl font-bold tracking-tight flex items-center gap-2"
+        href="/"
+      >
+        {headerData?.logo ? (
+          <Image
+            src={urlFor(headerData.logo)
+              .width(logoMaxWidth)
+              .height(logoHeight)
+              .url()}
+            alt={headerData.logoText || "Logo"}
+            width={logoMaxWidth}
+            height={logoHeight}
+            className="w-auto object-contain"
+            style={{
+              height: `${logoHeight}px`,
+              maxWidth: `${logoMaxWidth}px`,
+            }}
+          />
+        ) : null}
+        {headerData?.logoText || null}
+      </Link>
+
+      <nav>
         <ul className="flex items-center gap-4 font-semibold text-slate-700">
-          <li>
-            <Link
-              className="hover:text-pink-500 transition-colors"
-              href="/posts"
-            >
-              Posts
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="hover:text-pink-500 transition-colors"
-              href="/studio"
-            >
-              Sanity Studio
-            </Link>
-          </li>
+          {headerData?.navigationItems?.map((item) => (
+            <li key={item._key}>
+              {item.isExternal ? (
+                <a
+                  className="transition-colors hover:text-pink-600"
+                  href={`/${item.slug?.current}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {item.title}
+                </a>
+              ) : (
+                <Link
+                  className="transition-colors hover:text-pink-600"
+                  href={`/${item.slug?.current}`}
+                >
+                  {item.title}
+                </Link>
+              )}
+            </li>
+          ))}
         </ul>
-      </header>
-    </div>
-  )
+      </nav>
+    </header>
+  );
 }

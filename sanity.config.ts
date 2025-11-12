@@ -37,6 +37,6 @@ export default defineConfig({
   ],
   document: {
     newDocumentOptions: (prev) =>
-      prev.filter((item) => item.templateId !== "siteSettings"), // solo permitir un documento de configuración del sitio
+      prev.filter((item) => !["siteSettings", "header"].includes(item.templateId)), // solo permitir un documento de configuración del sitio y header
   },
 });

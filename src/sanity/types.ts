@@ -13,6 +13,36 @@
  */
 
 // Source: schema.json
+export type Header = {
+  _id: string;
+  _type: "header";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  logo: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  logoText?: string;
+  logoHeight: number;
+  logoMaxWidth: number;
+  navigationItems?: Array<{
+    title: string;
+    slug: Slug;
+    isExternal?: boolean;
+    _type: "navigationItem";
+    _key: string;
+  }>;
+};
+
 export type SiteSettings = {
   _id: string;
   _type: "siteSettings";
@@ -564,7 +594,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = SiteSettings | SplitImage | Hero | Features | Faqs | Faq | Page | PageBuilder | ImageTextSection | TextSection | Post | Author | Category | BlockContent | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = Header | SiteSettings | SplitImage | Hero | Features | Faqs | Faq | Page | PageBuilder | ImageTextSection | TextSection | Post | Author | Category | BlockContent | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/sanity/lib/queries.ts
 // Variable: POSTS_QUERY
@@ -1022,6 +1052,32 @@ export type HOME_PAGE_QUERYResult = {
     };
   } | null;
 } | null;
+// Variable: HEADER_QUERY
+// Query: *[_type == "header"][0]{  _id,  logo,  logoText,  logoHeight,  logoMaxWidth,  navigationItems[]{    _key,    title,    slug,    isExternal  }}
+export type HEADER_QUERYResult = {
+  _id: string;
+  logo: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  logoText: string | null;
+  logoHeight: number;
+  logoMaxWidth: number;
+  navigationItems: Array<{
+    _key: string;
+    title: string;
+    slug: Slug;
+    isExternal: boolean | null;
+  }> | null;
+} | null;
 
 // Query TypeMap
 import "@sanity/client";
@@ -1034,5 +1090,6 @@ declare module "@sanity/client" {
     "*[_type == \"page\" && defined(slug.current)]{ \n  \"slug\": slug.current\n}": PAGES_SLUGS_QUERYResult;
     "*[_type == \"page\" && slug.current == $slug][0]{\n  ...,\n  content[]{\n    ...,\n    _type == \"faqs\" => {\n      ...,\n      faqs[]->\n    }\n  }\n}": PAGE_QUERYResult;
     "*[_id == \"siteSettings\"][0]{\n    homePage->{\n      ...,\n      content[]{\n        ...,\n        _type == \"faqs\" => {\n          ...,\n          faqs[]->\n        }\n      }      \n    }\n  }": HOME_PAGE_QUERYResult;
+    "*[_type == \"header\"][0]{\n  _id,\n  logo,\n  logoText,\n  logoHeight,\n  logoMaxWidth,\n  navigationItems[]{\n    _key,\n    title,\n    slug,\n    isExternal\n  }\n}": HEADER_QUERYResult;
   }
 }

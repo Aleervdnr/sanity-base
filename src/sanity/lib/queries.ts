@@ -93,3 +93,17 @@ export const HOME_PAGE_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
       }      
     }
   }`);
+
+export const HEADER_QUERY = defineQuery(`*[_type == "header"][0]{
+  _id,
+  logo,
+  logoText,
+  logoHeight,
+  logoMaxWidth,
+  navigationItems[]{
+    _key,
+    title,
+    slug,
+    isExternal
+  }
+}`);
