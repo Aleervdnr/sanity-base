@@ -15,6 +15,7 @@ import { pageBuilderType } from "./pageBuilderType";
 import { featuresType } from "./blocks/featuresType";
 import { siteSettingsType } from "./siteSettingsType";
 import { headerType } from "./headerType";
+import { gridType } from "./blocks/gridType";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -31,6 +32,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     featuresType,
     heroType,
     splitImageType,
+    gridType,
     siteSettingsType,
     headerType
   ],
