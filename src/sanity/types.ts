@@ -57,6 +57,30 @@ export type SiteSettings = {
   };
 };
 
+export type Grid = {
+  _type: "grid";
+  title?: string;
+  columns: number;
+  items?: Array<{
+    image?: {
+      asset?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+      };
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    };
+    title?: string;
+    description?: string;
+    _key: string;
+  }>;
+  gap?: "small" | "medium" | "large";
+};
+
 export type SplitImage = {
   _type: "splitImage";
   orientation?: "imageLeft" | "imageRight";
@@ -203,7 +227,9 @@ export type Page = {
     _key: string;
   } & Features | {
     _key: string;
-  } & Faqs>;
+  } & Faqs | {
+    _key: string;
+  } & Grid>;
   mainImage?: {
     asset?: {
       _ref: string;
@@ -226,7 +252,9 @@ export type PageBuilder = Array<{
   _key: string;
 } & Features | {
   _key: string;
-} & Faqs>;
+} & Faqs | {
+  _key: string;
+} & Grid>;
 
 export type ImageTextSection = {
   _type: "imageTextSection";
@@ -595,7 +623,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = Header | SiteSettings | SplitImage | Hero | Features | Faqs | Faq | Page | PageBuilder | ImageTextSection | TextSection | Post | Author | Category | BlockContent | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = Header | SiteSettings | Grid | SplitImage | Hero | Features | Faqs | Faq | Page | PageBuilder | ImageTextSection | TextSection | Post | Author | Category | BlockContent | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/sanity/lib/queries.ts
 // Variable: POSTS_QUERY
@@ -832,6 +860,29 @@ export type PAGE_QUERYResult = {
     }>;
   } | {
     _key: string;
+    _type: "grid";
+    title?: string;
+    columns: number;
+    items?: Array<{
+      image?: {
+        asset?: {
+          _ref: string;
+          _type: "reference";
+          _weak?: boolean;
+          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+        };
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        _type: "image";
+      };
+      title?: string;
+      description?: string;
+      _key: string;
+    }>;
+    gap?: "large" | "medium" | "small";
+  } | {
+    _key: string;
     _type: "hero";
     title?: string;
     text?: Array<{
@@ -975,6 +1026,29 @@ export type HOME_PAGE_QUERYResult = {
         _type: "feature";
         _key: string;
       }>;
+    } | {
+      _key: string;
+      _type: "grid";
+      title?: string;
+      columns: number;
+      items?: Array<{
+        image?: {
+          asset?: {
+            _ref: string;
+            _type: "reference";
+            _weak?: boolean;
+            [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+          };
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          _type: "image";
+        };
+        title?: string;
+        description?: string;
+        _key: string;
+      }>;
+      gap?: "large" | "medium" | "small";
     } | {
       _key: string;
       _type: "hero";

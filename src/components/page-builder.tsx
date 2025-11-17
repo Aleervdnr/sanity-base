@@ -4,6 +4,7 @@ import { Hero } from "@/components/blocks/hero";
 import { Features } from "@/components/blocks/features";
 import { SplitImage } from "@/components/blocks/split-image";
 import { FAQs } from "@/components/blocks/faqs";
+import { Grid } from "@/components/blocks/grid";
 import { PAGE_QUERYResult } from "@/sanity/types";
 import { client } from "@/sanity/lib/client";
 import { Any, createDataAttribute } from "next-sanity";
@@ -89,6 +90,17 @@ export function PageBuilder({
             return (
               <DragHandle key={block._key}>
                 <FAQs {...block} />
+              </DragHandle>
+            );
+          case "grid":
+            return (
+              <DragHandle key={block._key}>
+                <Grid 
+                  {...block} 
+                  documentId={documentId}
+                  documentType={documentType}
+                  blockKey={block._key}
+                />
               </DragHandle>
             );
           default:
