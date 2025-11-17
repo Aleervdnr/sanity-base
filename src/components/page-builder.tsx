@@ -95,7 +95,12 @@ export function PageBuilder({
           case "grid":
             return (
               <DragHandle key={block._key}>
-                <Grid {...block} />
+                <Grid 
+                  {...block} 
+                  documentId={documentId}
+                  documentType={documentType}
+                  blockKey={block._key}
+                />
               </DragHandle>
             );
           default:
